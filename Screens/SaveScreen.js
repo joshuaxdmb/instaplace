@@ -1,21 +1,30 @@
+/*
+After the picture is taken, this screen allows the user to enter a caption and save the post to their profile
+*/
+
+//Imports
 import React, { useCallback, useEffect, useState } from "react";
-import { Text, View, Button, TextInput, Image } from "react-native";
+import { View, Button, TextInput, Image } from "react-native";
 import { fetchUser, fetchUserPosts } from "../Store/Actions/user-actions";
 import { useDispatch, useSelector } from "react-redux";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage, db } from "../App";
 import { getAuth } from "firebase/auth";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { async } from "@firebase/util";
 
 const SaveScreen = (props) => {
+
+  //State variables
   const [caption, setCaption] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+
+  //Store selectors
+  const user = useSelector((state) => state.userState);
+
+  //Function definitions
   const image = props.route.params.image.substring(7);
   const uid = getAuth().currentUser.uid;
 
-  const user = useSelector((state) => state.userState);
-  console.log(user);
   const dispatch = useDispatch();
 
   const loadUser = useCallback(() => {
@@ -28,13 +37,11 @@ const SaveScreen = (props) => {
     loadUser();
   }, [loadUser]);
 
-  console.log(image);
-
   const uploadImage = async () => {
     const imageFile = await fetch(image);
     const blob = await imageFile.blob();
-    console.log("Image fetched.");
     const imageRef = ref(storage, `posts/${uid}/${image.substring(image.length - 40)}`);
+    console.log('Uploading for user ',user.currentUser)
     const uploadTask = uploadBytesResumable(imageRef, blob, {
       contentType: "image/jpeg",
     }).then(async (snapshot) => {
@@ -44,11 +51,15 @@ const SaveScreen = (props) => {
         caption: caption,
         imageUrl: url,
         timestamp: serverTimestamp(),
+        user:user.currentUser.name
       });
       console.log("Post created with id:", docRef.id);
+      props.navigation.navigate('Profile');
       dispatch(fetchUserPosts(uid))
-    });
-  };
+    }).catch(e=>{
+      console.log('Eror: ',e)
+    })
+  }; 
 
   return (
     <View style={styles.mainview}>

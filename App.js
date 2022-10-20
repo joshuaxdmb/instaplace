@@ -4,8 +4,7 @@ import AppNavigator from './Navigation/AppNavigator'
 import {FeedScreen} from './Screens/FeedScreen'
 
 import {Provider} from 'react-redux'
-import {createStore, applyMiddleware} from 'redux'
-import {rootReducer} from './Store/Reducers/index'
+import {createStore, applyMiddleware, combineReducers} from 'redux'
 import ReduxThunk from 'redux-thunk'
 
 import { FIREBASE_API_KEY } from "@env";
@@ -14,6 +13,8 @@ import { getAuth } from "firebase/auth";
 import { getApps, initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { user } from "./Store/Reducers/user-reducers";
+import { feed } from "./Store/Reducers/feed-reducers";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -30,7 +31,10 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app, 'gs://instaplace-c6e04.appspot.com/')
 
-
+const rootReducer = combineReducers({
+  userState:user,
+  feedState:feed
+})
 
 const store = createStore(rootReducer, applyMiddleware(ReduxThunk))
 

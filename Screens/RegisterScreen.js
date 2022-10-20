@@ -1,9 +1,14 @@
-import React, { useState, Component } from "react";
-import { View, Text, Button, TextInput } from "react-native";
+/*
+Allows the user to register for the app. This creates a user in Firebase.
+*/
+
+//Imports
+import React, { useState } from "react";
+import { View, TextInput } from "react-native";
 import StyledButton from "../Components/StyledButton";
-import { Colors, AppleColorsLight as AppleColors } from "../Constants/Colors";
+import { Colors} from "../Constants/Colors";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, addDoc, setDoc} from "firebase/firestore";
+import {setDoc} from "firebase/firestore";
 import { db } from "../App";
 import { useDispatch } from "react-redux";
 import { fetchUser, fetchUserPosts, fetchFollowers } from "../Store/Actions/user-actions";

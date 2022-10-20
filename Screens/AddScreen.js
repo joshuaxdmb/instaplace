@@ -1,24 +1,28 @@
+/*
+  Screen to take picture
+*/
+
 import { Camera, CameraType } from "expo-camera";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Image,
   ImageBackground
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { Ionicons } from "@expo/vector-icons";
 
 const AddScreen = (props) => {
-  //Set States
+  //State variables
   const [type, setType] = useState(CameraType.back);
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [camera, setCameta] = useState(null);
   const [image, setImage] = useState(null);
 
-  //Take Picture
+  //Function definitions
   const takePicture = async () => {
     if (camera) {
       const data = await camera.takePictureAsync(null);
@@ -27,7 +31,6 @@ const AddScreen = (props) => {
     }
   };
 
-  //Pick Image from Library
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -44,18 +47,33 @@ const AddScreen = (props) => {
     }
   };
 
-  //Save Image
-
   const saveImage= uri =>{
     props.navigation.navigate('Save',{
       image
     })
   }
 
+  const toggleCameraType = ()=> {
+    setType((current) =>
+      current === CameraType.back ? CameraType.front : CameraType.back
+    );
+  }
+
+  useEffect(()=>{
+    props.navigation.setOptions({
+      headerLeft: ()=>(
+        <View style={{marginHorizontal:10}}>
+            <Ionicons  color={'black'} size={30} onPress={()=>{props.navigation.goBack()}} name="chevron-back-outline"/>
+            </View>)
+    })
+  },[image])
+
+
+  //If there is no permission to access teh camera, return an empty view
   if (!permission) {
     return <View />;
   }
-
+  //If the permission object exists but it is not granted, show user what is happening and allow them to grant permission
   if (!permission.granted) {
     return (
       <View style={styles.container}>
@@ -64,12 +82,6 @@ const AddScreen = (props) => {
         </Text>
         <Button onPress={requestPermission} title="grant permission" />
       </View>
-    );
-  }
-
-  function toggleCameraType() {
-    setType((current) =>
-      current === CameraType.back ? CameraType.front : CameraType.back
     );
   }
 

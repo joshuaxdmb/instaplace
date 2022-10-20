@@ -1,5 +1,9 @@
+/* Allows the user to select whether to login or register */
+
+
+//Imports
 import React from 'react'
-import {Text, View, Button} from 'react-native'
+import {View} from 'react-native'
 import StyledButton from '../Components/StyledButton'
 import {Colors,AppleColorsLight as AppleColors} from '../Constants/Colors'
 

@@ -14,7 +14,8 @@ const AppleColorsLight ={
     indigo:'rgb(88,86,214)',
     purple:'rgb(175,82,222)',
     pink:'rgb(255,45,85)',
-    brown:'162,132,94)'
+    brown:'rgb(162,132,94)',
+    gray:'rgb(142,142,147)'
 }
 
 export {AppleColorsLight,

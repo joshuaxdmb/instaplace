@@ -1,16 +1,26 @@
-import React, { useState, Component } from "react";
-import { View, Text, Button, TextInput } from "react-native";
+/* 
+Allows users with existing credentials to login to the app and the database (login is handled by Firebase)
+*/
+
+
+//Imports
+import React, { useState } from "react";
+import { View,TextInput } from "react-native";
 import StyledButton from "../Components/StyledButton";
 import {Colors,AppleColorsLight as AppleColors} from '../Constants/Colors'
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { fetchUser, fetchUserPosts, fetchFollowers } from "../Store/Actions/user-actions";
+import { fetchUser, fetchUserPosts} from "../Store/Actions/user-actions";
 import { useDispatch } from "react-redux";
+import { fetchFeedPosts } from "../Store/Actions/feed-actions";
 
 
 const LoginScreen = (props) => {
-  const dispatch = useDispatch();
+  //State variables
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  //Function definitions
+  const dispatch = useDispatch();
 
   const onSignUp = async() => {
     const auth = getAuth();
@@ -18,8 +28,9 @@ const LoginScreen = (props) => {
       .then((userCredential) => {
         // Signed in
         dispatch(fetchUser())
-        dispatch(fetchUserPosts(userCredential.user.uid))
-        dispatch(fetchFollowers())
+        dispatch(fetchUserPosts())
+        dispatch(fetchFeedPosts())
+        console.log('here3')
         props.navigation.navigate("Main");
         // ...
       })
@@ -38,12 +49,14 @@ const LoginScreen = (props) => {
         placeholder="Email"
         onChangeText={(email) => setEmail(email)}
         style={styles.input}
+        autoCapitalize={'none'}
       />
       <TextInput
         placeholder="Password"
         onChangeText={(password) => setPassword(password)}
         secureTextEntry={true}
         style={styles.input}
+        autoCapitalize={'none'}
       />
       <StyledButton title="Log In" onPress={onSignUp} color={Colors.indigo} />
     </View>

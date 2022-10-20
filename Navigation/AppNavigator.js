@@ -9,7 +9,9 @@ import ProfileScreen from "../Screens/ProfileScreen";
 import { Ionicons } from "@expo/vector-icons";
 import AddScreen from "../Screens/AddScreen";
 import SaveScreen from "../Screens/SaveScreen";
-import SearchScreen from '../Screens/SearchScreen'
+import SearchScreen from "../Screens/SearchScreen";
+import PostScreen from "../Screens/PostScreen";
+import { View } from "react-native";
 
 const Stack = createStackNavigator();
 
@@ -30,7 +32,7 @@ const BottomNavigator = (props) => {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
+            <Ionicons name="home" color={color} size={size}/>
           ),
           tabBarShowLabel: false,
         }}
@@ -72,17 +74,13 @@ const BottomNavigator = (props) => {
         name="Search"
         component={SearchScreen}
         options={{
-          headerShown:false,
-          tabBarIcon: ({
-            color,size
-          })=>(
-            <Ionicons name="search-outline" color={color} size={size}/>
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="search-outline" color={color} size={size} />
           ),
-          tabBarShowLabel:false
-
+          tabBarShowLabel: false,
         }}
       />
-
     </Tab.Navigator>
   );
 };
@@ -95,9 +93,10 @@ const MainNavigator = (props) => {
         component={BottomNavigator}
         options={{ headerShown: false }}
       />
-      <MainStack.Screen name="MainAdd" component={AddScreen} />
+      <MainStack.Screen name="MainAdd" component={AddScreen} options={{ title:'Add Photo'}} />
       <MainStack.Screen name="Save" component={SaveScreen} />
-      <MainStack.Screen name="OtherProfile" component={ProfileScreen} />
+      <MainStack.Screen name="OtherProfile" component={ProfileScreen} options={{ title:''}}  />
+      <MainStack.Screen name="PostScreen" component={PostScreen} options={{ title:'Comments', gestureEnabled:true, detachPreviousScreen:false}}/>
     </MainStack.Navigator>
   );
 };
