@@ -10,6 +10,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { async } from "@firebase/util";
 
 export const USER_STATE_CHANGE = "USER_STATE_CHANGE";
 export const USER_POST_STATE_CHANGE = "USER_POST_STATE_CHANGE";
@@ -47,19 +48,28 @@ export const fetchUserPosts = () => {
 export const followUser = async (uid) => {
   const myId = getAuth().currentUser.uid;
   const currentUser = await getDoc(doc(db, "users", myId));
-  console.log(currentUser.data().following)
-  const timestamp = Date.now()
+  const currentFollowing = [...currentUser.data().following]
+  if(currentFollowing.some(f => f.uid === uid)){
+    console.log('Already following this user')
+    return {}
+  } else{
+    const timestamp = Date.now()
   await setDoc(
     doc(db, "users", myId),
     {
       following: [
-        ...currentUser.data().following,
+        currentFollowing,
         { uid: uid, timestamp: timestamp },
       ],
     },
     { merge: true }
   );
-  console.log("User followed.");
+  return async(dispatch) =>{
+    const newFollower= {uid, timestamp}
+    dispatch({type: USER_FOLLOWING_STATE_CHANGE, newFollower })
+  }
+  }
+  
 };
 
 export const unfollowUser = async (uid) => {

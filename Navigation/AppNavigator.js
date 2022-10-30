@@ -11,6 +11,7 @@ import AddScreen from "../Screens/AddScreen";
 import SaveScreen from "../Screens/SaveScreen";
 import SearchScreen from "../Screens/SearchScreen";
 import PostScreen from "../Screens/PostScreen";
+import AddProfilePhotoScreen from "../Screens/AddProfilePhotoScreen";
 import { View } from "react-native";
 
 const Stack = createStackNavigator();
@@ -114,6 +115,12 @@ const AppNavigator = (props) => {
           name="Register"
           component={RegisterScreen}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AddProfilePhoto"
+          component={AddProfilePhotoScreen}
+          options={{ title:''}}
+          
         />
         <Stack.Screen
           name="Login"

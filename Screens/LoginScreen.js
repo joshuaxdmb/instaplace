@@ -7,7 +7,7 @@ Allows users with existing credentials to login to the app and the database (log
 import React, { useState } from "react";
 import { View,TextInput } from "react-native";
 import StyledButton from "../Components/StyledButton";
-import {Colors,AppleColorsLight as AppleColors} from '../Constants/Colors'
+import {Colors, AppleColorsLight, defaultColors} from '../Constants/Colors'
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { fetchUser, fetchUserPosts} from "../Store/Actions/user-actions";
 import { useDispatch } from "react-redux";
@@ -50,6 +50,7 @@ const LoginScreen = (props) => {
         onChangeText={(email) => setEmail(email)}
         style={styles.input}
         autoCapitalize={'none'}
+        color='white'
       />
       <TextInput
         placeholder="Password"
@@ -57,8 +58,9 @@ const LoginScreen = (props) => {
         secureTextEntry={true}
         style={styles.input}
         autoCapitalize={'none'}
+        color='white'
       />
-      <StyledButton title="Log In" onPress={onSignUp} color={Colors.indigo} />
+      <StyledButton title="Log In" onPress={onSignUp} color={Colors.indigo} style={{margin:20}} />
     </View>
   );
 };
@@ -67,16 +69,19 @@ const styles = {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor:defaultColors.background
   },
   input: {
-    backgroundColor: "white",
-    boderColor: "black",
+    backgroundColor: defaultColors.background,
+    borderColor:'white',
     borderWidth: 1,
-    borderRadius: 2,
+    borderRadius: 4,
     margin: 5,
     width:"60%",
     height:'5%',
-    padding:2
+    padding:3,
+    paddingLeft:10,
+    placeholderTextColor:AppleColorsLight.gray,
   },
 };
 

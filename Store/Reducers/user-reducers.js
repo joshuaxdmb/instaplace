@@ -9,7 +9,7 @@ const initialState = {
 };
 
 export const user = (state = initialState, action) => {
-  console.log("User reducer called.", action.currentUser, action.type);
+  console.log("User reducer called.", action.type);
   switch (action.type) {
     case USER_STATE_CHANGE:
       return {
@@ -25,7 +25,7 @@ export const user = (state = initialState, action) => {
     case USER_FOLLOWING_STATE_CHANGE:
       return {
         ...state,
-        following: action.following,
+        following: [...state.currentUser.following, action.newFollower],
       };
     default:
       return {

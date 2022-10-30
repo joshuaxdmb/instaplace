@@ -3,30 +3,19 @@ import { View, Text, TouchableOpacity, Button, Dimensions } from "react-native";
 import { getDoc, doc } from "firebase/firestore";
 import { db } from "../App";
 
+
 const windowWidth = Dimensions.get("window").width;
 
+
 const Comment = (props) => {
-  const [username, setUsername] = useState("");
-  const { comment, uid } = props;
-
-  const getUsername = async () => {
-    const docRef = doc(db, "users", uid);
-    const snap = await getDoc(docRef);
-    setUsername(snap.data().name);
-  };
-
-  useEffect(() => {
-    getUsername();
-  }, [uid, comment]);
+  const { comment, uid, username } = props;
 
   return (
-    <TouchableOpacity onPress={props.onSelect}>
       <View style={styles.mainContainer}>
         <Text>
           {username}: {comment}
         </Text>
       </View>
-    </TouchableOpacity>
   );
 };
 

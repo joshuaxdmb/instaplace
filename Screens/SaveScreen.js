@@ -51,7 +51,8 @@ const SaveScreen = (props) => {
         caption: caption,
         imageUrl: url,
         timestamp: serverTimestamp(),
-        user:user.currentUser.name
+        user:user.currentUser.name,
+        userImage:user.currentUser.imageUrl
       });
       console.log("Post created with id:", docRef.id);
       props.navigation.navigate('Profile');

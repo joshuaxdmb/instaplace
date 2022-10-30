@@ -3,37 +3,55 @@ Allows the user to register for the app. This creates a user in Firebase.
 */
 
 //Imports
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, TextInput } from "react-native";
 import StyledButton from "../Components/StyledButton";
-import { Colors} from "../Constants/Colors";
+import { AppleColorsLight, Colors} from "../Constants/Colors";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import {setDoc} from "firebase/firestore";
-import { db } from "../App";
+import {setDoc, doc} from "firebase/firestore";
+import { storage, db } from "../App";
 import { useDispatch } from "react-redux";
 import { fetchUser, fetchUserPosts, fetchFollowers } from "../Store/Actions/user-actions";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+
+
 
 const RegisterScreen = (props) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [image, setImage] = useState(null);
+  const [imageUrl, setImageUrl] =useState(null);
+ 
   const dispatch = useDispatch()
 
+  useEffect(()=>{
+    if(props.route.params){
+      setImage(props.route.params.image.substring(7))
+      console.log('IMAGE SET', props.route.params.image.substring(7))
+      uploadImage(props.route.params.image.substring(7))
+    }
+
+  },[props])
+
   const onSignUp = async () => {
+    if(!imageUrl){
+      return
+    }
     const auth = getAuth();
+    console.log(imageUrl)
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         setDoc(doc(db, "users",userCredential.user.uid), {
           name,
           email,
           following:[],
-          followers:[]
+          followers:[],
+          imageUrl:imageUrl
         });
         // Signed in
         dispatch(fetchUser());
         dispatch(fetchUserPosts(userCredential.user.uid));
-        dispatch(fetchFollowers());
         props.navigation.navigate("Main");
         // ...
       })
@@ -42,6 +60,29 @@ const RegisterScreen = (props) => {
         // ..
       });
   };
+
+  const selectImage = () =>{
+    props.navigation.navigate('AddProfilePhoto')
+  }
+
+  const uploadImage = async (image) => {
+    const imageFile = await fetch(image);
+    const blob = await imageFile.blob();
+    const imageRef = ref(storage, `profiles/${image.substring(image.length - 40)}`);
+    const uploadTask = await uploadBytesResumable(imageRef, blob, {
+      contentType: "image/jpeg",
+    }).then(async (snapshot) => {
+      console.log('Image uploaded successfully.')
+      const url = await getDownloadURL(snapshot.ref);
+      setImageUrl(url);
+      return(url)
+    }).catch(e=>{
+      console.log('Eror: ',e)
+    })
+
+   
+  }; 
+
 
   return (
     <View style={styles.mainview}>
@@ -61,6 +102,8 @@ const RegisterScreen = (props) => {
         secureTextEntry={true}
         style={styles.input}
       />
+      {image? <StyledButton title="Image Selected" onPress={selectImage} color={AppleColorsLight.cyan} style={{width:200,marginBottom:10,marginTop:10}}/>
+      : <StyledButton title="Add Profile Picture" onPress={selectImage} color={AppleColorsLight.blue} style={{width:200,marginBottom:10,marginTop:10}}/>}
       <StyledButton title="Sign Up" onPress={onSignUp} color={Colors.indigo} />
     </View>
   );

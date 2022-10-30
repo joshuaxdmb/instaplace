@@ -15,7 +15,8 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 
-const AddScreen = (props) => {
+
+const AddProfilePhotoScreen = (props) => {
   //State variables
   const [type, setType] = useState(CameraType.back);
   const [permission, requestPermission] = Camera.useCameraPermissions();
@@ -27,7 +28,6 @@ const AddScreen = (props) => {
     if (camera) {
       const data = await camera.takePictureAsync(null);
       setImage(data.uri);
-      console.log(data.uri);
     }
   };
 
@@ -46,7 +46,7 @@ const AddScreen = (props) => {
   };
 
   const saveImage= uri =>{
-    props.navigation.navigate('Save',{
+    props.navigation.navigate('Register',{
       image
     })
   }
@@ -65,7 +65,6 @@ const AddScreen = (props) => {
             </View>)
     })
   },[image])
-
 
   //If there is no permission to access teh camera, return an empty view
   if (!permission) {
@@ -149,4 +148,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddScreen;
+export default AddProfilePhotoScreen;

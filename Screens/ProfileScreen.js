@@ -4,7 +4,7 @@ Displays the current logged in user or another user based on a selection
 
 //Imports
 import React, { useCallback, useEffect, useState } from "react";
-import { Text, View, Button, FlatList } from "react-native";
+import { View, Button, FlatList, Image } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { ProfilePost } from "../Components/ProfilePost";
 import { getDoc, doc, getDocs, collection } from "firebase/firestore";
@@ -16,6 +16,8 @@ import {
 } from "../Store/Actions/user-actions";
 import { getAuth, signOut } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
+import { defaultColors } from "../Constants/Colors";
+import { DefaultText } from "../Components/DefaultText";
 
 const FeedScreen = (props) => {
   //State variables
@@ -37,7 +39,7 @@ const FeedScreen = (props) => {
   const onFollow = async () => {
     console.log("Follow pressed for user", user);
     if (user.id) {
-      await followUser(user.id);
+      dispatch(followUser(user.id));
       setFollowing(true);
     }
   };
@@ -45,7 +47,7 @@ const FeedScreen = (props) => {
   const onUnfollow = () => {
     console.log("Unfollowed pressed for user", user);
     if (user.id) {
-      unfollowUser(user.id);
+      dispatch(unfollowUser(user.id));
       setFollowing(false);
     }
   };
@@ -54,7 +56,7 @@ const FeedScreen = (props) => {
     const auth = getAuth();
     signOut(auth)
       .then(() => {
-        props.navigation.navigate("Login");
+        props.navigation.navigate("Landing");
       })
       .catch((e) => {
         console.log("Error logging out: ", e);
@@ -66,6 +68,7 @@ const FeedScreen = (props) => {
     if (!props.route.params) {
       setUser(myUser);
       console.log("Setting user to default...");
+      console.log(myUser);
     } else {
       console.log("Fetching user data");
       const snap = await getDoc(doc(db, "users", props.route.params.uid));
@@ -91,22 +94,9 @@ const FeedScreen = (props) => {
       });
       setPosts(newposts);
 
-      const snap2 = await getDoc(
-        doc(
-          db,
-          "following",
-          myUser.uid,
-          "userFollowing",
-          myUser.uid + "-" + props.route.params.uid
-        )
-      );
-
-      if (snap2.exists()) {
+      if (followingList.some((f) => f.uid === props.route.params.uid)) {
+        console.log("You are following this user");
         setFollowing(true);
-        console.log("You are following this user!");
-      }
-      if (followingList.includes(props.route.params.uid)) {
-        console.log("This user is included in the local database.");
       }
     }
   }, [dispatch, props.route.params]);
@@ -115,37 +105,62 @@ const FeedScreen = (props) => {
     loadUser();
     loadProfile();
     props.navigation.setOptions({
-      headerLeft: ()=>(
-        <View style={{marginHorizontal:10}}>
-            <Ionicons  color={'black'} size={30} onPress={()=>{props.navigation.goBack()}} name="chevron-back-outline"/>
-            </View>)
-    })
+      headerLeft: () => (
+        <View style={{ marginHorizontal: 10 }}>
+          <Ionicons
+            color={"black"}
+            size={30}
+            onPress={() => {
+              props.navigation.goBack();
+            }}
+            name="chevron-back-outline"
+          />
+        </View>
+      ),
+    });
   }, [loadUser, dispatch, props.route.params]);
 
   //If posts are loaded, display them
   if (posts.length > 0) {
     return (
       <View style={styles.mainview}>
-        <View style={styles.infoContainer}>
-          <Text>{user.name}</Text>
-          <Text>{user.email}</Text>
-          {user.uid !== myUser.uid ? (
-            <View>
-              {following ? (
-                <Button title="Following" onPress={onUnfollow} />
-              ) : (
-                <Button title="Follow" onPress={onFollow} />
-              )}
-            </View>
-          ) : null}
-          {user.uid === myUser.uid ? (
-            <View>
-              <Button title="Logout" onPress={logout} />
-            </View>
-          ) : (
-            <View />
-          )}
+        <View style={styles.profileContainer}>
+          <Image source={{ url: user.imageUrl }} style={styles.userImage} />
+          <View style={styles.infoContainer}>
+            <DefaultText>{user.name}</DefaultText>
+            <DefaultText>{user.email}</DefaultText>
+            {user.uid !== myUser.uid ? (
+              <View>
+                {following ? (
+                  <Button title="Following" onPress={onUnfollow} />
+                ) : (
+                  <Button title="Follow" onPress={onFollow} />
+                )}
+              </View>
+            ) : null}
+            
+          </View>
+          {/* {user.uid === myUser.uid ? (
+              <View>
+                <Button title="Logout" onPress={logout} />
+              </View>
+            ) : (
+              <View />
+            )} */}
+            
         </View>
+        <View style={{flexDirection:'row', justifyContent:'center', paddingBottom:20}}>
+        <View style={{alignItems:'center', paddingHorizontal:10}}>
+        <DefaultText style={{fontSize:16, fontWeight:'bold'}}>100</DefaultText>
+        <DefaultText>Followers</DefaultText>
+        </View>
+        <View style={{alignItems:'center', paddingHorizontal:10}}>
+        <DefaultText style={{fontSize:16, fontWeight:'bold'}}>{followingList.length}</DefaultText>
+        <DefaultText>Following</DefaultText>
+        </View>
+
+        </View>
+        
         <FlatList
           numColumns={3}
           horizontal={false}
@@ -163,8 +178,14 @@ const FeedScreen = (props) => {
     //If posts are not loaded, show a message
   } else {
     return (
-      <View style={styles.mainview}>
-        <Text>No posts to show.</Text>
+      <View
+        style={{
+          ...styles.mainview,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <DefaultText style={styles.defaultText}>No posts to show.</DefaultText>
       </View>
     );
   }
@@ -173,12 +194,30 @@ const FeedScreen = (props) => {
 const styles = {
   mainview: {
     flex: 1,
-    marginTop: "10%",
+    paddingTop: "12%",
+    backgroundColor: defaultColors.background,
+    paddingHorizontal:10,
   },
   infoContainer: {
-    flex: 1 / 4,
-    alignItems: "center",
+    alignItems: "start",
     justifyContent: "center",
+    height:70,
+    marginLeft:10
+  },
+  defaultText: {
+    color: defaultColors.text,
+  },
+  userImage: {
+    height: 70,
+    width: 70,
+    borderRadius: "50%",
+  },
+  profileContainer: {
+    flexDirection: "row",
+    alignItems:'start',
+    justifyContent:"center",
+    width:"100%",
+    paddingBottom:10
   },
 };
 
