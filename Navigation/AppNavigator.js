@@ -13,6 +13,7 @@ import SearchScreen from "../Screens/SearchScreen";
 import PostScreen from "../Screens/PostScreen";
 import AddProfilePhotoScreen from "../Screens/AddProfilePhotoScreen";
 import { View } from "react-native";
+import { AppleColorsDark, defaultColors } from "../Constants/Colors";
 
 const Stack = createStackNavigator();
 
@@ -26,14 +27,24 @@ const EmptyScreen = () => {
 
 const BottomNavigator = (props) => {
   return (
-    <Tab.Navigator initialRouteName="Feed">
+    <Tab.Navigator
+      initialRouteName="Feed"
+      screenOptions={{
+        tabBarStyle: {
+          backgroundColor: defaultColors.background,
+          borderTopWidth: 0.25,
+          marginBottom: 5,
+        },
+        tabBarActiveTintColor: "white",
+      }}
+    >
       <Tab.Screen
         name="Feed"
         component={FeedScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size}/>
+            <Ionicons name="home" color={color} size={size} />
           ),
           tabBarShowLabel: false,
         }}
@@ -94,10 +105,31 @@ const MainNavigator = (props) => {
         component={BottomNavigator}
         options={{ headerShown: false }}
       />
-      <MainStack.Screen name="MainAdd" component={AddScreen} options={{ title:'Add Photo'}} />
+      <MainStack.Screen
+        name="MainAdd"
+        component={AddScreen}
+        options={{ title: "" }}
+      />
       <MainStack.Screen name="Save" component={SaveScreen} />
-      <MainStack.Screen name="OtherProfile" component={ProfileScreen} options={{ title:''}}  />
-      <MainStack.Screen name="PostScreen" component={PostScreen} options={{ title:'Comments', gestureEnabled:true, detachPreviousScreen:false}}/>
+      <MainStack.Screen
+        name="OtherProfile"
+        component={ProfileScreen}
+        options={{ title: "" }}
+      />
+      <MainStack.Screen
+        name="ProfileFeed"
+        component={FeedScreen}
+        options={{ title: "" }}
+      />
+      <MainStack.Screen
+        name="PostScreen"
+        component={PostScreen}
+        options={{
+          title: "Comments",
+          gestureEnabled: true,
+          detachPreviousScreen: false,
+        }}
+      />
     </MainStack.Navigator>
   );
 };
@@ -119,8 +151,7 @@ const AppNavigator = (props) => {
         <Stack.Screen
           name="AddProfilePhoto"
           component={AddProfilePhotoScreen}
-          options={{ title:''}}
-          
+          options={{ title: "" }}
         />
         <Stack.Screen
           name="Login"

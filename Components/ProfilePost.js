@@ -1,16 +1,20 @@
 import React from "react";
-import { View, Text, Image, Button, Dimensions } from "react-native";
+import { TouchableOpacity, Text, Image, Button, Dimensions } from "react-native";
 
 const windowWidth = Dimensions.get("window").width;
 
 const ProfilePost = (props) => {
-  const { post, id } = props;
-  const { caption, imageUrl } = post;
+  const { post, id, uid, navigation, onClick } = props;
+  const { caption, imageUrl, user, comments, userImage = null } = post;
+
+  const onTouch = () => {
+    onClick(id)
+  };
 
   return (
-    <View style={styles.mainContainer}>
+    <TouchableOpacity style={styles.mainContainer} onPress={onTouch}>
         <Image source={{ url: imageUrl }} style={styles.image} />
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -21,12 +25,12 @@ const styles = {
     flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "center",
-    borderColor: "#ccc",
-    borderWidth: 1,
+    borderColor: "black",
+    borderWidth: 0.5,
   },
   captionContainer: {
-    justifyContent: "start",
-    alignItems: "start",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
     width: "100%",
   },
   image: {

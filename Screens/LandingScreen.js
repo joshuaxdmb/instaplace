@@ -3,13 +3,14 @@
 
 //Imports
 import React from 'react'
-import {View} from 'react-native'
+import {View, StatusBar} from 'react-native'
 import StyledButton from '../Components/StyledButton'
 import {Colors,AppleColorsLight as AppleColors, defaultColors} from '../Constants/Colors'
 
 const LandingScreen = props =>{
     return(
         <View style={styles.mainview}>
+        <StatusBar  barStyle="light-content" translucent={true} />
             <StyledButton title="Register"
                 onPress={()=>{
                     props.navigation.navigate('Register')

@@ -4,6 +4,7 @@ After the picture is taken, this screen allows the user to enter a caption and s
 
 //Imports
 import React, { useCallback, useEffect, useState } from "react";
+import {Image as ImageCompress} from 'react-native-compressor'
 import { View, Button, TextInput, Image } from "react-native";
 import { fetchUser, fetchUserPosts } from "../Store/Actions/user-actions";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,18 +12,20 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage, db } from "../App";
 import { getAuth } from "firebase/auth";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { DynamicStatusBar } from "../Components/DynamicStatusBar";
 
 const SaveScreen = (props) => {
 
   //State variables
   const [caption, setCaption] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [saveDisabled,setSaveDisabled] = useState(false)
 
   //Store selectors
   const user = useSelector((state) => state.userState);
 
   //Function definitions
-  const image = props.route.params.image.substring(7);
+  const image = props.route.params.image.substring(0,2)==='ph'?props.route.params.image:props.route.params.image.substring(7);
   const uid = getAuth().currentUser.uid;
 
   const dispatch = useDispatch();
@@ -34,14 +37,22 @@ const SaveScreen = (props) => {
   }, [dispatch]);
 
   useEffect(() => {
+    console.log('Saving image',image)
     loadUser();
   }, [loadUser]);
 
   const uploadImage = async () => {
-    const imageFile = await fetch(image);
-    const blob = await imageFile.blob();
-    const imageRef = ref(storage, `posts/${uid}/${image.substring(image.length - 40)}`);
-    console.log('Uploading for user ',user.currentUser)
+    setSaveDisabled(true)
+    const imageFile = await fetch(image)
+    const blob = await imageFile.blob()
+    let imageRef = null
+    if(image.substring(0,2) !== 'ph'){
+      imageRef = ref(storage, `posts/${uid}/${image.substring(image.length - 40)}`);
+    } else{
+      imageRef = ref(storage, `posts/${uid}/${image.substring(5)}`);
+    }
+    
+    console.log('Uploading for user ',user.currentUser.name)
     const uploadTask = uploadBytesResumable(imageRef, blob, {
       contentType: "image/jpeg",
     }).then(async (snapshot) => {
@@ -64,6 +75,7 @@ const SaveScreen = (props) => {
 
   return (
     <View style={styles.mainview}>
+    <DynamicStatusBar  barStyle="dark-content" translucent={true}/>
       <Image source={{ uri: image }} style={{ flex: 1 }} />
       <View style={styles.inputView}>
         <TextInput
@@ -72,7 +84,7 @@ const SaveScreen = (props) => {
             setCaption(caption);
           }}
         />
-        <Button title="Save" onPress={uploadImage} style={styles.button} />
+        <Button title="Save" onPress={uploadImage} style={styles.button}  disabled={saveDisabled}/>
       </View>
     </View>
   );
@@ -88,7 +100,7 @@ const styles = {
   inputView: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "start",
+    justifyContent: "flex-start",
     marginTop:20
   },
 };

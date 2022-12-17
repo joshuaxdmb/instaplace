@@ -30,7 +30,6 @@ const LoginScreen = (props) => {
         dispatch(fetchUser())
         dispatch(fetchUserPosts())
         dispatch(fetchFeedPosts())
-        console.log('here3')
         props.navigation.navigate("Main");
         // ...
       })
@@ -46,7 +45,7 @@ const LoginScreen = (props) => {
   return (
     <View style={styles.mainview}>
       <TextInput
-        placeholder="Email"
+        placeholder="joshuaxd@gmail.com"
         onChangeText={(email) => setEmail(email)}
         style={styles.input}
         autoCapitalize={'none'}

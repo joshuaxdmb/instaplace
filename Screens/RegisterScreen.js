@@ -13,6 +13,7 @@ import { storage, db } from "../App";
 import { useDispatch } from "react-redux";
 import { fetchUser, fetchUserPosts, fetchFollowers } from "../Store/Actions/user-actions";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { Image as ImageCompress } from "react-native-compressor";
 
 
 
@@ -66,7 +67,8 @@ const RegisterScreen = (props) => {
   }
 
   const uploadImage = async (image) => {
-    const imageFile = await fetch(image);
+    const compressedImage = await ImageCompress.compress(image,{maxWidth:500,quality:0.8});
+    const imageFile = await fetch(compressedImage);
     const blob = await imageFile.blob();
     const imageRef = ref(storage, `profiles/${image.substring(image.length - 40)}`);
     const uploadTask = await uploadBytesResumable(imageRef, blob, {
@@ -86,6 +88,7 @@ const RegisterScreen = (props) => {
 
   return (
     <View style={styles.mainview}>
+      <StatusBar  barStyle="light-content" translucent={true} />
       <TextInput
         placeholder="Name"
         onChangeText={(name) => setName(name)}

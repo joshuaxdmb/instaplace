@@ -4,14 +4,13 @@ This screen allows searching for other users and looking at their profiles by ta
 
 //Imports
 import React, { useState } from "react";
-import { View, StatusBar, FlatList } from "react-native";
+import { View, FlatList } from "react-native";
 import { SearchBar } from "react-native-elements";
 import { useSelector } from "react-redux";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../App";
 import { SearchResult } from "../Components/SearchResult";
-
-StatusBar.setBarStyle("dark-content", true);
+import { DynamicStatusBar } from "../Components/DynamicStatusBar";
 
 const SearchScreen = (props) => {
 
@@ -47,6 +46,7 @@ const SearchScreen = (props) => {
   };
   return (
     <View style={styles.mainContainer}>
+    <DynamicStatusBar  barStyle="dark-content" translucent={true}/>
       <SearchBar
         placeholder="Search"
         onChangeText={searchUsers}

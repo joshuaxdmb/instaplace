@@ -9,12 +9,12 @@ const StyledButton = props =>{
     )
 }
 
-const styles = StyleSheet.create({
+const styles = {
     buttonContainer:{
-        borderRadius:'25%',
+        borderRadius:25,
         margin:2,
         width:100,
     }
-})
+}
 
 export default StyledButton

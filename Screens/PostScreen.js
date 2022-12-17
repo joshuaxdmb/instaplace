@@ -16,17 +16,20 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  StatusBar
 } from "react-native";
 import { getAuth } from "firebase/auth";
-import { doc, updateDoc, getDoc, arrayUnion } from "firebase/firestore";
+import { doc, updateDoc, getDoc, arrayUnion, deleteDoc } from "firebase/firestore";
 import { db } from "../App";
-import { AppleColorsLight } from "../Constants/Colors";
+import { AppleColorsLight, defaultColors } from "../Constants/Colors";
 import { useSelector, useDispatch } from "react-redux";
 import { Comment } from "../Components/Comment";
 import { Ionicons } from "@expo/vector-icons";
 import { RectButton } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { updatePostComments } from "../Store/Actions/feed-actions";
+import { DefaultText } from "../Components/DefaultText";
+import PopoverExample from "../Components/PopOverExample";
 
 //Global variables
 const windowWidth = Dimensions.get("window").width;
@@ -48,13 +51,27 @@ const PostScreen = (props) => {
   } = props.route.params;
   const myId = getAuth().currentUser.uid;
 
+
   const dispatch = useDispatch();
 
-  const getUsername = async (uid) => {
+  const onDeletePost = async()=>{
+    if(myId === uid){
+      const docRef= doc(db,'posts',uid,'userPosts',postId);
+      await deleteDoc(docRef)
+      props.navigation.goBack()
+    } else {
+      console.log('You tried to delete a post that is not yours.')
+    }
+    
+
+  }
+
+  const getUserData = async (uid) => {
     const docRef = doc(db, "users", uid);
     const snap = await getDoc(docRef);
-    return snap.data().name;
+    return snap.data();
   };
+
 
   const getPostUsername = async () => {
     const docRef = doc(db, "users", uid);
@@ -71,7 +88,7 @@ const PostScreen = (props) => {
       headerLeft: () => (
         <View style={{ marginHorizontal: 10 }}>
           <Ionicons
-            color={"black"}
+            color={defaultColors.text}
             size={30}
             onPress={() => {
               props.navigation.goBack();
@@ -79,7 +96,10 @@ const PostScreen = (props) => {
             name="chevron-back-outline"
           />
         </View>
-      ),
+      ), headerStyle:{backgroundColor:defaultColors.background},
+      headerTitleStyle:{
+        color:'white'
+      }
     });
   }, [postId]);
 
@@ -93,13 +113,14 @@ const PostScreen = (props) => {
     const docRef = doc(db, "posts", uid, "userPosts", postId);
     const timestamp = Date.now();
     const id = myId + timestamp;
-    const username = await getUsername(myId);
+    const myUserData = await getUserData(myId);
     const newComment = {
       uid: myId,
       comment,
       timestamp,
       id: id,
-      username,
+      username: myUserData.name,
+      userImageUrl: myUserData.imageUrl 
     };
     await updateDoc(docRef, {
       comments: arrayUnion(newComment),
@@ -153,6 +174,7 @@ const PostScreen = (props) => {
           deleteComment(itemId);
         }}
       >
+      <StatusBar  barStyle="light-content" translucent={true} />
         <Animated.Text
           style={[
             Style,
@@ -161,6 +183,7 @@ const PostScreen = (props) => {
               fontSize: 12,
               justifyContent: "center",
               alignItems: "center",
+              width:'60%'
             },
           ]}
         >
@@ -187,6 +210,7 @@ const PostScreen = (props) => {
             uid={item.uid}
             comment={item.comment}
             username={item.username}
+            userImageUrl={item.userImageUrl}
           />
         </Swipeable>
       );
@@ -196,6 +220,7 @@ const PostScreen = (props) => {
           uid={item.uid}
           comment={item.comment}
           username={item.username}
+          userImageUrl={item.userImageUrl}
         />
       );
     }
@@ -211,9 +236,9 @@ const PostScreen = (props) => {
         <View style={styles.captionImage}>
           <Image source={{ url: userImage }} style={styles.userImage} />
           <View style={styles.captionContainer}>
-            <Text style={styles.defaultText}>
+            <DefaultText style={styles.defaultText}>
               {postUsername}: {caption}
-            </Text>
+            </DefaultText>
           </View>
         </View>
         <TouchableOpacity
@@ -237,27 +262,29 @@ const PostScreen = (props) => {
       </View>
       <View style={styles.commentView}>
         <View style={styles.inputView}>
-          <View style={{ flexDirection: "row", width:'60%', alignItems:'center' }}>
-            <Text
+        <View style={{ flexDirection: "row", width:'60%', alignItems:'center' }}> 
+            <DefaultText
               style={{
                 textAlignVertical: "center",
                 fontSize: 14,
                 includeFontPadding: false,
-                lineHeight: 20,
+                lineHeight: 30,
               }}
             >
               {username}:{" "}
-            </Text>
+            </DefaultText>
             <TextInput
               style={styles.inputStyle}
               placeholder="Enter comment..."
               value={comment}
               onChangeText={setComment}
               multiline={true}
+              color={defaultColors.text}
+              placeholderTextColor={AppleColorsLight.gray}
             ></TextInput>
           </View>
           <View style={styles.buttonView}>
-            <Button title="Post" onPress={onPost} />
+            <Button title="Post" color='white' onPress={onPost} />
           </View>
         </View>
       </View>
@@ -267,16 +294,16 @@ const PostScreen = (props) => {
 
 const styles = {
   commentsContainer: {
-    backgroundColor: "white",
+    backgroundColor: defaultColors.background,
     flex: 1,
     flexDirection: "column",
     width: windowWidth,
-    padding: 20,
+    paddingVertical: 20,
     height: windowHeight * 0.9,
   },
   captionContainer: {
-    justifyContent: "start",
-    alignItems: "start",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
     padding: 5,
   },
   image: {
@@ -285,9 +312,9 @@ const styles = {
   },
   commentView: {
     flexDirection: "row",
-    borderWidth: 1,
+    borderTopWidth: 0.25,
     borderColor: AppleColorsLight.gray,
-    backgroundColor: "white",
+    backgroundColor: defaultColors.background,
     width: "100%",
     justifyContent: "space-between",
     alignItems: "center",
@@ -304,30 +331,51 @@ const styles = {
   inputStyle: {
     paddingBottom: 4,
     fontSize: 14,
+    width:'100%',
   },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: defaultColors.background,
     justifyContent: "center",
   },
 
   captionImage: {
     flexDirection: "row",
     width: "100%",
-    alignItems: "start",
-    paddingTop: 5,
-    paddingBottom: 5,
+    alignItems: "flex-start",
+    paddingTop: 0,
+    paddingBottom: 10,
+    borderBottomWidth:0.25,
+    borderBottomColor:AppleColorsLight.gray,
+    paddingHorizontal:10
   },
   userImage: {
     height: 35,
     width: 35,
     resizeMode: "cover",
-    borderRadius: "50%",
+    borderRadius: 17.5,
     marginRight: 5,
   },
   buttonView: {
-    justifyContent: "end",
+    justifyContent: "flex-end",
+    
   },
+  comment:{
+    flexDirection: "row",
+    width: "100%",
+    alignItems: "flex-start",
+    padding:10,
+    backgroundColor:defaultColors.background
+    
+  },
+  commentImage:{
+    height: 35,
+    width: 35,
+    resizeMode: "cover",
+    borderRadius: 17.5,
+    marginRight: 10,
+    backgroundColor:defaultColors.background
+  }
 };
 
 export default PostScreen;

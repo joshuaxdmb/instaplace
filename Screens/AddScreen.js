@@ -10,17 +10,29 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ImageBackground
+  ImageBackground,
+  FlatList,
+  StatusBar,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
+import { AppleColorsLight, defaultColors } from "../Constants/Colors";
+import * as MediaLibrary from "expo-media-library";
+import { useIsFocused } from "@react-navigation/native";
+import { MediaItem } from "../Components/MediaItem";
+import { Image as ImageCompress } from "react-native-compressor";
+import { DefaultText } from "../Components/DefaultText";
 
 const AddScreen = (props) => {
   //State variables
   const [type, setType] = useState(CameraType.back);
   const [permission, requestPermission] = Camera.useCameraPermissions();
+  const [status, requestMediaPermission] = MediaLibrary.usePermissions();
   const [camera, setCameta] = useState(null);
   const [image, setImage] = useState(null);
+  const [media, setMedia] = useState([]);
+
+  const isFocused = useIsFocused();
 
   //Function definitions
   const takePicture = async () => {
@@ -45,76 +57,183 @@ const AddScreen = (props) => {
     }
   };
 
-  const saveImage= uri =>{
-    props.navigation.navigate('Save',{
-      image
-    })
-  }
+  const saveImage = async () => {
+    const compressedImage = await ImageCompress.compress(image, {
+      maxWidth: 800,
+      quality: 0.8,
+    });
+    props.navigation.navigate("Save", {
+      image: compressedImage,
+    });
+  };
 
-  const toggleCameraType = ()=> {
+  const toggleCameraType = () => {
     setType((current) =>
       current === CameraType.back ? CameraType.front : CameraType.back
     );
-  }
+  };
 
-  useEffect(()=>{
+  const getMedia = async () => {
+    const mediaRequest = await MediaLibrary.getAssetsAsync({
+      mediaType: MediaLibrary.MediaType.photo,
+      sortBy: MediaLibrary.SortBy.creationTime,
+    });
+    setMedia(mediaRequest.assets);
+  };
+
+  useEffect(() => {
     props.navigation.setOptions({
-      headerLeft: ()=>(
-        <View style={{marginHorizontal:10}}>
-            <Ionicons  color={'black'} size={30} onPress={()=>{props.navigation.goBack()}} name="chevron-back-outline"/>
-            </View>)
-    })
-  },[image])
+      headerLeft: () => (
+        <View style={{ marginHorizontal: 10 }}>
+          <Ionicons
+            color={"white"}
+            size={30}
+            onPress={() => {
+              props.navigation.goBack();
+            }}
+            name="chevron-back-outline"
+          />
+        </View>
+      ),
+      headerStyle: { backgroundColor: defaultColors.background },
+      headerTitleStyle: {
+        color: "white",
+      },
+    });
+    if (permission && status) {
+      console.log("Permissions created");
+      if (!permission.granted || !status.granted) {
+        console.log("Requesting permissions");
+        requestPermissions();
+        getMedia();
+      } else if (status.granted) {
+        getMedia();
+      }
+    }
+    console.log("Current image", image);
+  }, [image, isFocused, permission, status]);
 
+  const selectMedia = (url) => {
+    console.log("Media selected", url);
+    setImage(url);
+    console.log(image);
+  };
 
-  //If there is no permission to access teh camera, return an empty view
-  if (!permission) {
+  const requestPermissions = async () => {
+    await requestPermission();
+    await requestMediaPermission();
+  };
+
+  //If there is no permission to access the camera, return an empty view
+  if (!permission || !status) {
     return <View />;
   }
   //If the permission object exists but it is not granted, show user what is happening and allow them to grant permission
-  if (!permission.granted) {
+  else if (!permission.granted || !status.granted) {
     return (
       <View style={styles.container}>
-        <Text style={{ textAlign: "center" }}>
+        <StatusBar barStyle="light-content" translucent={true} />
+
+        <DefaultText style={{ textAlign: "center" }}>
           We need your permission to show the camera
-        </Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        </DefaultText>
+        <StyledButton onPress={requestPermissions} title="Grant permission" color={Colors.indigo} style={{margin:20}} />
       </View>
     );
   }
 
   return (
     <View style={styles.mainView}>
+      <StatusBar barStyle="light-content" translucent={true} />
       <View style={styles.container}>
-        <Camera
-          style={styles.camera}
-          type={type}
-          ratio={"1:1"}
-          ref={(ref) => {
-            setCameta(ref);
-          }}
-        >
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
-              <Text style={styles.text}>Flip Camera</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={takePicture}>
-              <Text style={styles.text}>Take Picture</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={pickImage}>
-              <Text style={styles.text}>Pick Image</Text>
-            </TouchableOpacity>
-          </View>
-        </Camera>
+        {image ? (
+          <ImageBackground source={{ uri: image }} style={styles.camera}>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={toggleCameraType}
+              >
+                <Ionicons
+                  color={"white"}
+                  size={30}
+                  name="camera-reverse-outline"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setImage(null)}
+              >
+                <Ionicons color={"white"} size={30} name="camera-outline" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={saveImage}>
+                <Ionicons
+                  color={AppleColorsLight.blue}
+                  size={30}
+                  name="add-circle"
+                />
+              </TouchableOpacity>
+            </View>
+          </ImageBackground>
+        ) : (
+          <Camera
+            style={styles.camera}
+            type={type}
+            ratio={"1:1"}
+            ref={(ref) => {
+              setCameta(ref);
+            }}
+          >
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={toggleCameraType}
+              >
+                <Ionicons
+                  color={"white"}
+                  size={30}
+                  name="camera-reverse-outline"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={takePicture}>
+                <Ionicons color={"white"} size={30} name="camera-outline" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={pickImage}>
+                <Ionicons color={"white"} size={30} name="image-outline" />
+              </TouchableOpacity>
+            </View>
+          </Camera>
+        )}
       </View>
-      {image && (
-        <ImageBackground source={{ uri: image }} style={{flex:1}}>
-        <View style={styles.buttonContainer}>
+      {false && (
+        <ImageBackground source={{ uri: image }} style={{ flex: 1 }}>
+          <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={saveImage}>
               <Text style={styles.text}>Save Image</Text>
             </TouchableOpacity>
           </View>
         </ImageBackground>
+      )}
+
+      {media.length > 0 ? (
+        <View style={styles.container}>
+          <FlatList
+            numColumns={3}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            horizontal={false}
+            data={media}
+            keyExtractor={(item) => item.id}
+            renderItem={(itemData) => (
+              <MediaItem
+                post={{ caption: "", imageUrl: itemData.item.uri }}
+                id={""}
+                onPress={selectMedia}
+              />
+            )}
+          />
+        </View>
+      ) : (
+        <View />
       )}
     </View>
   );
@@ -123,6 +242,7 @@ const AddScreen = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: defaultColors.background,
   },
   camera: {
     aspectRatio: 1,

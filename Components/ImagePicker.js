@@ -51,7 +51,7 @@ const ImgPicker = props => {
         title="Take Image"
         color={Colors.accent}
         onPress={takeImageHandler}
-        style={{width:'80%'}}
+        //style={{width:'80%'}}
         />
         </View>
     </View>)
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
         marginBottom:15
 
     }, imagePreview:{
-        width:'100%',
+        //width:'100%',
         height:200,
         marginBottom:10,
         justifyContent:'center',
@@ -72,8 +72,8 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderWidth:1
     }, image:{
-        width:'100%',
-        height:'100%'
+        //width:'100%',
+        //height:'100%'
 
     }
 })

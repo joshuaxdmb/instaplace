@@ -4,13 +4,12 @@ import {
   getDoc,
   getDocs,
   collection,
-  addDoc,
   setDoc,
   deleteDoc,
+  updateDoc
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { EvilIcons } from "@expo/vector-icons";
 
 export const FEED_POSTS_STATE_CHANGE = "FEED_POSTS_STATE_CHANGE";
 export const FORCE_RELOAD = "FORCE_RELOAD"
@@ -50,6 +49,58 @@ export const fetchFeedPosts = () => {
   };
 };
 
+export const likePost = async(postId, postUid) =>{
+    myId = getAuth().currentUser.uid
+    const timestamp = Date.now()
+    await setDoc(doc(db,'posts',postUid,'userPosts',postId,'likes',myId),{
+      timestamp,
+      uid:myId
+    })
+
+    const likesQuery = await getDoc(doc(db,'posts',postUid,'userPosts',postId))
+    const currentLikesCount = likesQuery.data().likesCount
+
+    await updateDoc(doc(db,'posts',postUid,'userPosts',postId),{
+      likesCount:currentLikesCount+1
+    })
+}
+
+export const deletePost = (uid,postId) =>{
+  return async(dispatch, useSelector)=>{
+    const docRef= doc(db,'posts',uid,'userPosts',postId);
+    const snap = await deleteDoc(docRef)
+    console.log('Post deleted.')
+    const state = useSelector((state) => state.feedState);
+    const currentPosts = state.feedState? state.feedState.posts : []
+
+    const posts = []
+
+    currentPosts.forEach(p=>{
+      if(p.id !== postId){
+        posts.push(p)
+      }
+    })
+
+    dispatch({ type: FEED_POSTS_STATE_CHANGE, uniquePosts:posts })
+
+  }
+}
+
+export const unlikePost = async(postId, postUid) =>{
+    myId = getAuth().currentUser.uid
+    const timestamp = Date.now()
+    await deleteDoc(doc(db,'posts',postUid,'userPosts',postId,'likes',myId),{
+      timestamp,
+      uid:myId
+    })
+    const likesQuery = await getDoc(doc(db,'posts',postUid,'userPosts',postId))
+    const currentLikesCount = likesQuery.data().likesCount
+
+    await updateDoc(doc(db,'posts',postUid,'userPosts',postId),{
+      likesCount:currentLikesCount-1
+    })
+  }
+
 export const updatePostComments = (postId, newComments) => {
   return (dispatch, useSelector) => {
     const state = useSelector((state) => state.feedState);
@@ -65,7 +116,7 @@ export const updatePostComments = (postId, newComments) => {
     });
 
     if (posts.length === currentPosts.length && posts.length>0) {
-      dispatch({ type: FEED_POSTS_STATE_CHANGE, posts });
+      dispatch({ type: FEED_POSTS_STATE_CHANGE, uniquePosts:posts });
     } else {
       console.log(
         "ERROR: The number of new posts does not match the old number"

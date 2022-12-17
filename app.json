@@ -1,5 +1,8 @@
 {
   "expo": {
+    "plugins": [
+      "react-native-compressor"
+    ],
     "name": "instaplace",
     "slug": "instaplace",
     "version": "1.0.0",
@@ -18,13 +21,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.joshauxdmb.instaplace"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.joshauxdmb.instaplace"
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -5,6 +5,7 @@ import {FeedScreen} from './Screens/FeedScreen'
 
 import {Provider} from 'react-redux'
 import {createStore, applyMiddleware, combineReducers} from 'redux'
+import {configureStore, getDefaultMiddleware} from '@reduxjs/toolkit'
 import ReduxThunk from 'redux-thunk'
 
 import { FIREBASE_API_KEY } from "@env";
@@ -31,12 +32,16 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app, 'gs://instaplace-c6e04.appspot.com/')
 
-const rootReducer = combineReducers({
+const reducer = combineReducers({
   userState:user,
   feedState:feed
 })
 
-const store = createStore(rootReducer, applyMiddleware(ReduxThunk))
+const store = createStore(reducer, applyMiddleware(ReduxThunk))
+// const store  = configureStore({
+//   reducer,
+//   middleware:(getDefaultMiddleware)=>getDefaultMiddleware({ReduxThunk})
+// })
 
 export default function App() {
   if (getAuth().currentUser) {
