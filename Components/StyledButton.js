@@ -1,10 +1,11 @@
 import React from 'react'
 import {StyleSheet,View,Button} from 'react-native'
+import { AppleColorsDark, AppleColorsLight } from '../Constants/Colors'
 
 const StyledButton = props =>{
     return(
         <View  style={{...styles.buttonContainer,backgroundColor:props.color,...props.style}}>
-            <Button testID = {props.testID} color='white' title={props.title} onPress={props.onPress}/>
+            <Button testID = {props.testID} color='white' title={props.title} onPress={props.onPress} disabled={props.disabled}/>
         </View>
     )
 }

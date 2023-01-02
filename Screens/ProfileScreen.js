@@ -4,20 +4,18 @@ Displays the current logged in user or another user based on a selection
 
 //Imports
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Button, FlatList, Image, StatusBar, Alert } from "react-native";
+import { View, FlatList, Image, Alert } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { ProfilePost } from "../Components/ProfilePost";
 import { getDoc, doc, getDocs, collection } from "firebase/firestore";
-import { db } from "../App";
+import { db } from "../DB";
 import {
   followUser,
-  unfollowUser,
-  fetchUserPosts,
+  unfollowUser
 } from "../Store/Actions/user-actions";
 import { getAuth, signOut } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  AppleColorsDark,
   AppleColorsLight,
   defaultColors,
 } from "../Constants/Colors";
@@ -31,23 +29,25 @@ const ProfileScreen = (props) => {
   const [user, setUser] = useState({});
   const [posts, setPosts] = useState({});
   const [following, setFollowing] = useState(false);
-
+  const [followers, setFollowers] = useState([])
+  const [followingList, setFollowingList] = useState([])
   //Store selectors
   const myUser = useSelector((state) => state.userState.currentUser);
   const myPosts = useSelector((state) => state.userState.posts);
-  const followingList = useSelector(
+  const myFollowingList = useSelector(
     (state) => state.userState.currentUser.following
   );
-  const followerList = useSelector((state) => state.userState.followers);
+  const myFollowerList = useSelector((state) => state.userState.followers);
 
   //Function definitions
   const dispatch = useDispatch();
 
   const onFollow = async () => {
     console.log("Follow pressed for user", user.name);
-    if (user.id) {
+    if (user.id) {   
       dispatch(followUser(user.id));
       setFollowing(true);
+      setFollowers([...followers,myUser.uid])
     }
   };
 
@@ -56,6 +56,7 @@ const ProfileScreen = (props) => {
     if (user.id) {
       dispatch(unfollowUser(user.id));
       setFollowing(false);
+      setFollowers(followers.filter(f=>f.uid !== myUser.uid))
     }
   };
   const onLogOutPress = () => {
@@ -97,16 +98,23 @@ const ProfileScreen = (props) => {
       console.log("Fetching user data");
       const snap = await getDoc(doc(db, "users", props.route.params.uid));
       setUser(snap.data());
-      console.log("User loaded ", snap.data().name);
+      console.log("User loaded ", snap.data());
       setUser({ ...snap.data(), id: props.route.params.uid });
+      setFollowers(snap.data().followers);
+      setFollowingList(snap.data().following);
+      console.log(snap.data().followers)
+      if (snap.data().followers.some((f) => f.uid === myUser.uid)) {
+        console.log("You are following this user");
+        setFollowing(true);
+      }
     }
+
   }, [dispatch, props.route.params]);
 
-  const loadProfile = useCallback(async () => {
+  const loadPosts = useCallback(async () => {
     //Loads user posts. Checks if the page was loaded for the logged-in user or another user
     if (!props.route.params) {
-      dispatch(fetchUserPosts());
-      setPosts(myPosts);
+      setPosts(myPosts)
     } else {
       console.log("Fetching posts for user", props.route.params.uid);
       const snapshot = await getDocs(
@@ -118,18 +126,18 @@ const ProfileScreen = (props) => {
       });
       console.log("Loaded posts", newposts);
       setPosts(newposts);
-
-      if (followingList.some((f) => f.uid === props.route.params.uid)) {
-        console.log("You are following this user");
-        setFollowing(true);
-      }
     }
   }, [dispatch, props.route.params]);
 
+
+  useEffect(()=>{
+    loadUser()
+  },[myFollowingList])
+
   useEffect(() => {
     loadUser();
-    loadProfile();
-    setPosts(myPosts);
+    loadPosts();
+    if(!props.route.params){setPosts(myPosts)};//To use from redux
     console.log('POSTS RENDERED:', myPosts.length)
     props.navigation.setOptions({
       headerLeft: () => (
@@ -145,7 +153,7 @@ const ProfileScreen = (props) => {
         </View>
       ),
     });
-  }, [loadUser, dispatch, props.route.params]);
+  }, [loadUser, loadPosts, dispatch, props.route.params, myPosts]);
 
   const onClickPost = (postId) => {
     props.navigation.navigate("ProfileFeed", {
@@ -226,13 +234,13 @@ const ProfileScreen = (props) => {
         >
           <View style={{ alignItems: "center", paddingHorizontal: 10 }}>
             <DefaultText style={{ fontSize: 16, fontWeight: "bold" }}>
-              {followerList.length}
+              {!props.route.params? myFollowerList.length : followers.length}
             </DefaultText>
             <DefaultText>Followers</DefaultText>
           </View>
           <View style={{ alignItems: "center", paddingHorizontal: 10 }}>
             <DefaultText style={{ fontSize: 16, fontWeight: "bold" }}>
-              {followingList.length}
+              {!props.route.params? myFollowingList.length : followingList.length}
             </DefaultText>
             <DefaultText>Following</DefaultText>
           </View>
@@ -243,7 +251,7 @@ const ProfileScreen = (props) => {
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
           horizontal={false}
-          onRefresh={loadProfile}
+          onRefresh={()=>{}}
           refreshing={isRefreshing}
           data={posts}
           keyExtractor={(item) => item.id}

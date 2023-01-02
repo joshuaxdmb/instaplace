@@ -1,4 +1,4 @@
-import { db } from "../../App";
+import { db } from "../../DB";
 import {
   doc,
   getDoc,
@@ -46,7 +46,9 @@ export const fetchUserPosts = () => {
     snapshot.forEach((doc) => {
       posts.push({ data: doc.data(), id: doc.id ,uid});
     });
-    
+    posts.sort((a, b) => {
+      return b.data.timestamp - a.data.timestamp;
+    });
     dispatch({ type: USER_POST_STATE_CHANGE, posts });
   };
 };
@@ -76,8 +78,9 @@ export const followUser = (uid) => {
   return async (dispatch, getState) => {
     const myId = getAuth().currentUser.uid;
     const currentUser = await getDoc(doc(db, "users", myId));
-
+    const otherUser = await getDoc(doc(db,'users',uid));
     const currentFollowing = [...currentUser.data().following];
+    const otherUserFolloers = [...otherUser.data().followers]
     if (currentFollowing.some((f) => f.uid === uid)) {
       console.log("Already following this user");
     } else {
@@ -89,10 +92,9 @@ export const followUser = (uid) => {
         },
         { merge: true }
       );
-      await setDoc(doc(db, "userFollowers", uid, "followers", myId), {
-        uid: myId,
-        timestamp: timestamp,
-      });
+      await setDoc(doc(db, "users", uid), {
+        followers:[...otherUserFolloers,{uid:myId, timestamp:timestamp}]
+      }, {merge:true});
       const newFollower = { uid, timestamp };
       dispatch({ type: USER_FOLLOWING_STATE_CHANGE, newFollower: newFollower });
     }
@@ -104,11 +106,17 @@ export const unfollowUser = (uid) => {
     console.log("Unfollowing");
     const myId = getAuth().currentUser.uid;
     const currentUser = await getDoc(doc(db, "users", myId));
+    const otherUser = await getDoc(doc(db,'users',uid));
     const currentFollowing = [...currentUser.data().following];
+    const otherUserFollowers = [...otherUser.data().followers]
     const newFollowing = [];
+    const newFollowers = [];
     currentFollowing.forEach((i) => {
-      if (i.uid !== uid) [newFollowing.push(i)];
+      if (i.uid !== uid) {newFollowing.push(i)};
     });
+    otherUserFollowers.forEach(i=>{
+      if(i.uid !== myId){newFollowers.push(i)}
+    })
     await setDoc(
       doc(db, "users", myId),
       {
@@ -116,11 +124,14 @@ export const unfollowUser = (uid) => {
       },
       { merge: true }
     );
+    await setDoc(
+      doc(db, "users", uid),
+      {
+        followers: newFollowers,
+      },
+      { merge: true }
+    );
 
-    await deleteDoc(doc(db, "userFollowers", uid, "followers", myId));
-    dispatch({
-      type: USER_UNFOLLOWING_STATE_CHANGE,
-      newFollowing: [...newFollowing],
-    });
+    
   };
 };

@@ -16,10 +16,16 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
-  StatusBar
+  StatusBar,
 } from "react-native";
 import { getAuth } from "firebase/auth";
-import { doc, updateDoc, getDoc, arrayUnion, deleteDoc } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  getDoc,
+  arrayUnion,
+  deleteDoc,
+} from "firebase/firestore";
 import { db } from "../DB";
 import { AppleColorsLight, defaultColors } from "../Constants/Colors";
 import { useSelector, useDispatch } from "react-redux";
@@ -29,12 +35,13 @@ import { RectButton } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { updatePostComments } from "../Store/Actions/feed-actions";
 import { DefaultText } from "../Components/DefaultText";
+import MapView, { Marker } from "react-native-maps";
 
 //Global variables
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-const PostScreen = (props) => {
+const PostLocationScreen = (props) => {
   //State variables
   const [comment, setComment] = useState("");
   const [postUsername, setPostUsername] = useState("");
@@ -47,19 +54,17 @@ const PostScreen = (props) => {
     caption,
     comments = [],
     userImage = null,
+    location,
   } = props.route.params;
   const myId = getAuth().currentUser.uid;
 
-
   const dispatch = useDispatch();
-
 
   const getUserData = async (uid) => {
     const docRef = doc(db, "users", uid);
     const snap = await getDoc(docRef);
     return snap.data();
   };
-
 
   const getPostUsername = async () => {
     const docRef = doc(db, "users", uid);
@@ -68,6 +73,7 @@ const PostScreen = (props) => {
   };
 
   useEffect(() => {
+    console.log("LOCATION", location);
     if (postComments.length === 0) {
       setPostComments(comments);
     }
@@ -84,20 +90,19 @@ const PostScreen = (props) => {
             name="chevron-back-outline"
           />
         </View>
-      ), headerStyle:{backgroundColor:defaultColors.background},
-      headerTitleStyle:{
-        color:'white'
-      }
+      ),
+      headerStyle: { backgroundColor: defaultColors.background },
+      headerTitleStyle: {
+        color: "white",
+      },
     });
   }, [postId]);
 
   const username = useSelector((state) => state.userState.currentUser.name);
   //Function definitions
   const onPost = async () => {
-    console.log('Posting your comment.')
     if (comment === "") {
       setTyping(false);
-      console.log('Empty comments cannot be posted')
       return;
     }
     const docRef = doc(db, "posts", uid, "userPosts", postId);
@@ -110,7 +115,7 @@ const PostScreen = (props) => {
       timestamp,
       id: id,
       username: myUserData.name,
-      userImageUrl: myUserData.imageUrl 
+      userImageUrl: myUserData.imageUrl,
     };
     await updateDoc(docRef, {
       comments: arrayUnion(newComment),
@@ -164,7 +169,7 @@ const PostScreen = (props) => {
           deleteComment(itemId);
         }}
       >
-      <StatusBar  barStyle="light-content" translucent={true} />
+        <StatusBar barStyle="light-content" translucent={true} />
         <Animated.Text
           style={[
             Style,
@@ -173,7 +178,7 @@ const PostScreen = (props) => {
               fontSize: 12,
               justifyContent: "center",
               alignItems: "center",
-              width:'60%'
+              width: "60%",
             },
           ]}
         >
@@ -222,10 +227,17 @@ const PostScreen = (props) => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={60}
     >
-      <Image
+      <MapView
         style={styles.map}
-        source={{url:imageUrl}}
-      />
+        initialRegion={{
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: 0.0422,
+          longitudeDelta: 0.0421,
+        }}
+      >
+        <Marker coordinate={{latitude:location.latitude,longitude:location.longitude}}/>
+      </MapView>
       <View style={styles.commentsContainer}>
         <View style={styles.captionContainer}>
           <Comment
@@ -373,4 +385,4 @@ const styles = {
   },
 };
 
-export default PostScreen;
+export default PostLocationScreen;

@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Button, Dimensions, Image } from "react-native";
-import { getDoc, doc } from "firebase/firestore";
-import { db } from "../App";
 import { DefaultText } from "./DefaultText";
 import { defaultColors } from "../Constants/Colors";
 

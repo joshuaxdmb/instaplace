@@ -14,6 +14,7 @@ import PostScreen from "../Screens/PostScreen";
 import AddProfilePhotoScreen from "../Screens/AddProfilePhotoScreen";
 import { View } from "react-native";
 import { AppleColorsDark, defaultColors } from "../Constants/Colors";
+import PostLocationScreen from "../Screens/PostLocationScreen";
 
 const Stack = createStackNavigator();
 
@@ -126,6 +127,15 @@ const MainNavigator = (props) => {
         component={PostScreen}
         options={{
           title: "Comments",
+          gestureEnabled: true,
+          detachPreviousScreen: false,
+        }}
+      />
+      <MainStack.Screen
+        name="PostLocationScreen"
+        component={PostLocationScreen}
+        options={{
+          title: "Location",
           gestureEnabled: true,
           detachPreviousScreen: false,
         }}

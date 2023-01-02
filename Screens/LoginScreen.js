@@ -50,6 +50,7 @@ const LoginScreen = (props) => {
         style={styles.input}
         autoCapitalize={'none'}
         color='white'
+        placeholderTextColor={AppleColorsLight.gray}
       />
       <TextInput
         placeholder="Password"
@@ -58,6 +59,7 @@ const LoginScreen = (props) => {
         style={styles.input}
         autoCapitalize={'none'}
         color='white'
+        placeholderTextColor={AppleColorsLight.gray}
       />
       <StyledButton title="Log In" onPress={onSignUp} color={Colors.indigo} style={{margin:20}} />
     </View>

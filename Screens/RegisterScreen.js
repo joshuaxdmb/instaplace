@@ -9,7 +9,7 @@ import StyledButton from "../Components/StyledButton";
 import { AppleColorsLight, Colors} from "../Constants/Colors";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import {setDoc, doc} from "firebase/firestore";
-import { storage, db } from "../App";
+import { storage, db } from "../DB";
 import { useDispatch } from "react-redux";
 import { fetchUser, fetchUserPosts, fetchFollowers } from "../Store/Actions/user-actions";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";

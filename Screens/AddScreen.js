@@ -22,6 +22,8 @@ import { useIsFocused } from "@react-navigation/native";
 import { MediaItem } from "../Components/MediaItem";
 import { Image as ImageCompress } from "react-native-compressor";
 import { DefaultText } from "../Components/DefaultText";
+import * as Location from 'expo-location'
+import StyledButton from "../Components/StyledButton";
 
 const AddScreen = (props) => {
   //State variables
@@ -58,6 +60,7 @@ const AddScreen = (props) => {
   };
 
   const saveImage = async () => {
+    let { locationStatus } = await Location.requestForegroundPermissionsAsync(); //Reques location permissions if not yet granted
     const compressedImage = await ImageCompress.compress(image, {
       maxWidth: 800,
       quality: 0.8,
@@ -131,13 +134,13 @@ const AddScreen = (props) => {
   //If the permission object exists but it is not granted, show user what is happening and allow them to grant permission
   else if (!permission.granted || !status.granted) {
     return (
-      <View style={styles.container}>
+      <View style={styles.permissionContainer}>
         <StatusBar barStyle="light-content" translucent={true} />
 
         <DefaultText style={{ textAlign: "center" }}>
           We need your permission to show the camera
         </DefaultText>
-        <StyledButton onPress={requestPermissions} title="Grant permission" color={Colors.indigo} style={{margin:20}} />
+        <StyledButton onPress={requestPermissions} title="Grant permission" color={AppleColorsLight.indigo} style={{margin:20, width:200}} />
       </View>
     );
   }
@@ -243,6 +246,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: defaultColors.background,
+  },
+  permissionContainer: {
+    flex: 1,
+    backgroundColor: defaultColors.background,
+    alignItems:'center',
+    justifyContent:'center'
   },
   camera: {
     aspectRatio: 1,

@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { getAuth } from "firebase/auth";
-import { db } from "../App";
+import { db } from "../DB";
 import { doc, deleteDoc, getDoc, getDocs, collection } from "firebase/firestore";
 import {
   AppleColorsDark,
@@ -31,7 +31,7 @@ const FeedPost = (props) => {
   const [likesCount, setLikesCount] = useState(null);
 
   const { post, id, uid, navigation } = props;
-  const { caption, imageUrl, user, comments, userImage = null } = post;
+  const { caption, imageUrl, user, comments, userImage = null, location } = post;
   const myId = getAuth().currentUser.uid;
   let lastPress = 0;
 
@@ -45,8 +45,21 @@ const FeedPost = (props) => {
       caption,
       comments,
       userImage,
+      location
     });
   };
+
+  const onTouchLocation = () =>{
+    navigation.navigate("PostLocationScreen", {
+      postId: id,
+      uid,
+      imageUrl,
+      caption,
+      comments,
+      userImage,
+      location
+    });
+  }
 
   const onDeletePost = ()=>{
     console.log('Trying to delete post...')
@@ -121,19 +134,23 @@ const FeedPost = (props) => {
       <View style={styles.mainContainer}>
       <TouchableOpacity onPress={onLikePost} style={styles.touchableContainer}>
         {postLiked ? (
+          <TouchableOpacity style={{ position: "absolute", zIndex: 1, top: 10, right: 23 }} onPress={onTouchLocation}>
           <Ionicons
-            name="ios-heart"
-            color={"white"}
+            name="navigate"
+            color={AppleColorsLight.purple}
             size={40}
-            style={{ position: "absolute", zIndex: 1, top: 10, right: 23 }}
+            
           />
+          </TouchableOpacity>
         ) : (
+          <TouchableOpacity style={{ position: "absolute", zIndex: 1, top: 10, right: 23 }} onPress={onTouchLocation}>
           <Ionicons
-            name="ios-heart-outline"
+            name="navigate"
             color={"white"}
             size={40}
-            style={{ position: "absolute", zIndex: 1, top: 10, right: 23 }}
+            
           />
+          </TouchableOpacity>
         )}
         <Image source={{ url: imageUrl }} style={styles.image} />
         </TouchableOpacity>
@@ -228,6 +245,12 @@ const styles = {
     justifyContent: "flex-start",
     width: "100%",
     paddingVertical:10
+  },locationBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    width: "100%",
+    paddingTop:5
   },
 };
 

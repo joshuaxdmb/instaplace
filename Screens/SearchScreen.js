@@ -8,7 +8,7 @@ import { View, FlatList } from "react-native";
 import { SearchBar } from "react-native-elements";
 import { useSelector } from "react-redux";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../App";
+import { db } from "../DB";
 import { SearchResult } from "../Components/SearchResult";
 import { DynamicStatusBar } from "../Components/DynamicStatusBar";
 
