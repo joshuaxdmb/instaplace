@@ -19,7 +19,6 @@ const FeedScreen = (props) => {
   //State Variables
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
- // const [postsFeed, setPostsFeed] = useState([]);
   const { params = {} } = props ? props.route : {};
   const { userPosts = null, postId = null, initialIndex = null } = params;
 
@@ -38,17 +37,6 @@ const FeedScreen = (props) => {
     //setPostsFeed(feedPosts);
     setIsLoading(false);
   }, [dispatch, setIsLoading]);
-
-  // const reFresh = useCallback(()=>{
-  //   dispatch(forceReload())
-  //   setIsLoading(false)
-  // })
-
-  // useEffect(() => {
-  //   console.log('useffect feed 1')
-  //   setIsLoading(true);
-  //   reFresh()
-  // }, [isFocused]);
 
   useEffect(() => {
     if (!userPosts) {

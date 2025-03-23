@@ -26,19 +26,16 @@ const LoginScreen = (props) => {
     const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in
         dispatch(fetchUser())
         dispatch(fetchUserPosts())
         dispatch(fetchFeedPosts())
         props.navigation.navigate("Main");
-        // ...
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.log(errorCode);
         console.log(errorMessage);
-        // ..
       });
   };
 

@@ -50,15 +50,12 @@ const RegisterScreen = (props) => {
           followers:[],
           imageUrl:imageUrl
         });
-        // Signed in
         dispatch(fetchUser());
         dispatch(fetchUserPosts(userCredential.user.uid));
         props.navigation.navigate("Main");
-        // ...
       })
       .catch((error) => {
-        console.log(error);
-        // ..
+        console.error(error);
       });
   };
 
