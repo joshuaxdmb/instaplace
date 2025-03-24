@@ -1,7 +1,3 @@
-/* Allows the user to select whether to login or register */
-
-
-//Imports
 import React from 'react'
 import {View, StatusBar} from 'react-native'
 import StyledButton from '../Components/StyledButton'

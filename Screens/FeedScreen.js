@@ -1,8 +1,3 @@
-/*
-Shows posts loaded form users the logged in user is following
- */
-
-//Imports:
 import React, { useCallback, useEffect, useState } from "react";
 import { Text, View, FlatList, Dimensions } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,29 +7,22 @@ import { useIsFocused } from "@react-navigation/native";
 import { defaultColors } from "../Constants/Colors";
 import { DynamicStatusBar } from "../Components/DynamicStatusBar";
 
-//Constants"
-const windowWidth = Dimensions.get("window").width;
-
 const FeedScreen = (props) => {
-  //State Variables
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { params = {} } = props ? props.route : {};
   const { userPosts = null, postId = null, initialIndex = null } = params;
 
-  //Store Selectors
   const user = useSelector((state) => state.userState.currentUser);
   const feedPosts = useSelector((state) => state.feedState.posts);
   const myPosts = useSelector((state) => state.userState.posts);
 
   const isFocused = useIsFocused();
 
-  //Function Definitions
   const dispatch = useDispatch();
 
   const loadPosts = useCallback(() => {
     dispatch(fetchFeedPosts());
-    //setPostsFeed(feedPosts);
     setIsLoading(false);
   }, [dispatch, setIsLoading]);
 
@@ -44,7 +32,6 @@ const FeedScreen = (props) => {
       setIsLoading(true);
       loadPosts();
     } else {
-      //setPostsFeed(myPosts);
       setIsLoading(false);
     }
   }, [dispatch, user, loadPosts, myPosts]);
@@ -60,13 +47,11 @@ const FeedScreen = (props) => {
         loadPosts();
       }
     } else {
-      //setPostsFeed(myPosts);
       setIsLoading(false);
       console.log("Using loaded user posts.",myPosts.length);
     }
   }, [isFocused]);
 
-  //If posts have not been loaded yet, return loading screen
   if (isLoading) {
     return (
       <View style={{ ...styles.mainview, justifyContent: "center" }}>
@@ -74,7 +59,7 @@ const FeedScreen = (props) => {
       </View>
     );
   }
-  //If posts have already been loaded, return list of posts
+  
   if (feedPosts.length > 0 || userPosts) {
     return (
       <View

@@ -1,8 +1,3 @@
-/*
-Allows the user to register for the app. This creates a user in Firebase.
-*/
-
-//Imports
 import React, { useEffect, useState } from "react";
 import { View, TextInput } from "react-native";
 import StyledButton from "../Components/StyledButton";

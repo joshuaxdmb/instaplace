@@ -9,7 +9,6 @@ import {
   updateDoc
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { useDispatch, useSelector } from "react-redux";
 
 export const FEED_POSTS_STATE_CHANGE = "FEED_POSTS_STATE_CHANGE";
 export const FORCE_RELOAD = "FORCE_RELOAD"

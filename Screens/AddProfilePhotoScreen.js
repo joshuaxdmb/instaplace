@@ -1,7 +1,3 @@
-/*
-  Screen to take picture
-*/
-
 import { Camera, CameraType } from "expo-camera";
 import { useState, useEffect } from "react";
 import {
@@ -17,13 +13,11 @@ import { Ionicons } from "@expo/vector-icons";
 
 
 const AddProfilePhotoScreen = (props) => {
-  //State variables
   const [type, setType] = useState(CameraType.back);
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [camera, setCameta] = useState(null);
   const [image, setImage] = useState(null);
 
-  //Function definitions
   const takePicture = async () => {
     if (camera) {
       const data = await camera.takePictureAsync(null);
@@ -66,11 +60,10 @@ const AddProfilePhotoScreen = (props) => {
     })
   },[image])
 
-  //If there is no permission to access teh camera, return an empty view
   if (!permission) {
     return <View />;
   }
-  //If the permission object exists but it is not granted, show user what is happening and allow them to grant permission
+
   if (!permission.granted) {
     return (
       <View style={styles.container}>

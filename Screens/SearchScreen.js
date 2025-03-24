@@ -1,8 +1,3 @@
-/* 
-This screen allows searching for other users and looking at their profiles by tapping on the results
-*/
-
-//Imports
 import React, { useState } from "react";
 import { View, FlatList } from "react-native";
 import { SearchBar } from "react-native-elements";
@@ -13,13 +8,10 @@ import { SearchResult } from "../Components/SearchResult";
 import { DynamicStatusBar } from "../Components/DynamicStatusBar";
 
 const SearchScreen = (props) => {
-
-  //State variables
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  //Store selectors
   const following = useSelector((state) => state.userState.following);
 
   const searchUsers = async (value = search) => {

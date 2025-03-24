@@ -13,7 +13,6 @@
       }
     },
     "preview": {
-      "env":{"FIREBASE_API_KEY":"AIzaSyC6SHCoipq6f1zVCD1BDoWhMioNwuv14jA"},
       "distribution": "internal"
     },
     "production": {}

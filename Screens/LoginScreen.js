@@ -1,9 +1,3 @@
-/* 
-Allows users with existing credentials to login to the app and the database (login is handled by Firebase)
-*/
-
-
-//Imports
 import React, { useState } from "react";
 import { View,TextInput } from "react-native";
 import StyledButton from "../Components/StyledButton";
@@ -15,11 +9,9 @@ import { fetchFeedPosts } from "../Store/Actions/feed-actions";
 
 
 const LoginScreen = (props) => {
-  //State variables
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  //Function definitions
   const dispatch = useDispatch();
 
   const onSignUp = async() => {

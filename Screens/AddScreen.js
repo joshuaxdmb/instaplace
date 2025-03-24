@@ -1,11 +1,6 @@
-/*
-  Screen to take picture
-*/
-
 import { Camera, CameraType } from "expo-camera";
 import { useState, useEffect } from "react";
 import {
-  Button,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -26,7 +21,6 @@ import * as Location from 'expo-location'
 import StyledButton from "../Components/StyledButton";
 
 const AddScreen = (props) => {
-  //State variables
   const [type, setType] = useState(CameraType.back);
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [status, requestMediaPermission] = MediaLibrary.usePermissions();
@@ -36,7 +30,6 @@ const AddScreen = (props) => {
 
   const isFocused = useIsFocused();
 
-  //Function definitions
   const takePicture = async () => {
     if (camera) {
       const data = await camera.takePictureAsync(null);
@@ -60,7 +53,7 @@ const AddScreen = (props) => {
   };
 
   const saveImage = async () => {
-    let { locationStatus } = await Location.requestForegroundPermissionsAsync(); //Reques location permissions if not yet granted
+    await Location.requestForegroundPermissionsAsync()
     const compressedImage = await ImageCompress.compress(image, {
       maxWidth: 800,
       quality: 0.8,
@@ -127,11 +120,9 @@ const AddScreen = (props) => {
     await requestMediaPermission();
   };
 
-  //If there is no permission to access the camera, return an empty view
   if (!permission || !status) {
     return <View />;
   }
-  //If the permission object exists but it is not granted, show user what is happening and allow them to grant permission
   else if (!permission.granted || !status.granted) {
     return (
       <View style={styles.permissionContainer}>

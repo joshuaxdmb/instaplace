@@ -1,8 +1,3 @@
-/*
-Displays the current logged in user or another user based on a selection
-*/
-
-//Imports
 import React, { useCallback, useEffect, useState } from "react";
 import { View, FlatList, Image, Alert } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,14 +19,12 @@ import { DynamicStatusBar } from "../Components/DynamicStatusBar";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 const ProfileScreen = (props) => {
-  //State variables
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [user, setUser] = useState({});
   const [posts, setPosts] = useState({});
   const [following, setFollowing] = useState(false);
   const [followers, setFollowers] = useState([])
   const [followingList, setFollowingList] = useState([])
-  //Store selectors
   const myUser = useSelector((state) => state.userState.currentUser);
   const myPosts = useSelector((state) => state.userState.posts);
   const myFollowingList = useSelector(
@@ -39,7 +32,6 @@ const ProfileScreen = (props) => {
   );
   const myFollowerList = useSelector((state) => state.userState.followers);
 
-  //Function definitions
   const dispatch = useDispatch();
 
   const onFollow = async () => {
@@ -89,22 +81,15 @@ const ProfileScreen = (props) => {
   };
 
   const loadUser = useCallback(async () => {
-    //Loads user info. Checks if the page was loaded for the logged-in user or another user
     if (!props.route.params) {
       setUser(myUser);
-      console.log("Setting user to default...");
-      console.log(myUser);
     } else {
-      console.log("Fetching user data");
       const snap = await getDoc(doc(db, "users", props.route.params.uid));
       setUser(snap.data());
-      console.log("User loaded ", snap.data());
       setUser({ ...snap.data(), id: props.route.params.uid });
       setFollowers(snap.data().followers);
       setFollowingList(snap.data().following);
-      console.log(snap.data().followers)
       if (snap.data().followers.some((f) => f.uid === myUser.uid)) {
-        console.log("You are following this user");
         setFollowing(true);
       }
     }
@@ -112,11 +97,9 @@ const ProfileScreen = (props) => {
   }, [dispatch, props.route.params]);
 
   const loadPosts = useCallback(async () => {
-    //Loads user posts. Checks if the page was loaded for the logged-in user or another user
     if (!props.route.params) {
       setPosts(myPosts)
     } else {
-      console.log("Fetching posts for user", props.route.params.uid);
       const snapshot = await getDocs(
         collection(db, "posts", props.route.params.uid, "userPosts")
       );
@@ -124,7 +107,6 @@ const ProfileScreen = (props) => {
       snapshot.forEach((doc) => {
         newposts.push({ data: doc.data(), id: doc.id });
       });
-      console.log("Loaded posts", newposts);
       setPosts(newposts);
     }
   }, [dispatch, props.route.params]);
@@ -163,7 +145,6 @@ const ProfileScreen = (props) => {
     });
   };
 
-  //If posts are loaded, display them
   if (posts.length > 0) {
     return (
       <View
@@ -204,13 +185,6 @@ const ProfileScreen = (props) => {
                 <DynamicStatusBar barStyle="light-content" translucent={true} />
               )}
             </View>
-            {/* {user.uid === myUser.uid ? (
-              <View>
-                <Button title="Logout" onPress={logout} />
-              </View>
-            ) : (
-              <View />
-            )} */}
           </View>
           {user.uid === myUser.uid ? (
             <TouchableOpacity onPress={onLogOutPress}>
@@ -266,8 +240,6 @@ const ProfileScreen = (props) => {
         />
       </View>
     );
-
-    //If posts are not loaded, show a message
   } else {
     return (
       <View

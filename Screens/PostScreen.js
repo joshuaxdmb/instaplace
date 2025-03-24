@@ -1,18 +1,11 @@
-/* 
-Shows image and comments, and allows user to enter new comments
-*/
-
-//Imports
 import React, { useState, useEffect } from "react";
 import {
-  Text,
   View,
   TouchableOpacity,
   Dimensions,
   Image,
   TextInput,
   FlatList,
-  Button,
   KeyboardAvoidingView,
   Platform,
   Animated,
@@ -25,17 +18,14 @@ import { AppleColorsLight, defaultColors } from "../Constants/Colors";
 import { useSelector, useDispatch } from "react-redux";
 import { Comment } from "../Components/Comment";
 import { Ionicons } from "@expo/vector-icons";
-import { RectButton } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { updatePostComments } from "../Store/Actions/feed-actions";
 import { DefaultText } from "../Components/DefaultText";
 
-//Global variables
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const PostScreen = (props) => {
-  //State variables
   const [comment, setComment] = useState("");
   const [postUsername, setPostUsername] = useState("");
   const [postComments, setPostComments] = useState([]);
@@ -92,7 +82,6 @@ const PostScreen = (props) => {
   }, [postId]);
 
   const username = useSelector((state) => state.userState.currentUser.name);
-  //Function definitions
   const onPost = async () => {
     console.log('Posting your comment.')
     if (comment === "") {

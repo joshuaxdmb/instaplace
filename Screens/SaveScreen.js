@@ -1,8 +1,3 @@
-/*
-After the picture is taken, this screen allows the user to enter a caption and save the post to their profile
-*/
-
-//Imports
 import React, { useCallback, useEffect, useState } from "react";
 import { View, TextInput, Image } from "react-native";
 import { fetchUser, fetchUserPosts } from "../Store/Actions/user-actions";
@@ -17,16 +12,13 @@ import StyledButton from "../Components/StyledButton";
 import { AppleColorsLight, defaultColors } from "../Constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 const SaveScreen = (props) => {
-  //State variables
   const [caption, setCaption] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [saveDisabled,setSaveDisabled] = useState(false);
   const [location, setLocation] = useState (null)
 
-  //Store selectors
   const user = useSelector((state) => state.userState);
 
-  //Function definitions
   const image = props.route.params.image.substring(0,2)==='ph'?props.route.params.image:props.route.params.image.substring(7);
   const uid = getAuth().currentUser.uid;
 
